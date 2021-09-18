@@ -1,0 +1,62 @@
+Sub yearStockData()
+
+    ' set external sources as a variable. 'ws' in reference for worksheets. Like pd for pandas. You need to do this to reference external source.
+    For Each ws In Worksheets
+        'now we must set column headers as it matches with the image on the assignment.
+        ws.Range("I1").Value = "Ticker"
+        ws.Range("J1").Value = "Yearly Change"
+        ws.Range("K1").Value = "Percent Change"
+        ws.Range("L1").Value = "Total Stock Volume"
+
+        Dim tickerName As String
+        Dim lastRow As Long
+        lastRow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+        Dim totalTickerVolume As Double
+        totalTickerVolume = 0
+        Dim summaryTableRow As Long
+        summaryTableRow = 2
+        Dim yearlyOpen As Double
+        Dim yearlyClose As Double
+        Dim yearlyChange As Double
+        Dim previousAmount As Long
+        previousAmount = 2
+        Dim percentChange As Double
+        
+        For i = 2 To lastRow
+
+            totalTickerVolume = totalTickerVolume + ws.Cells(i, 7).Value
+            If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+
+                tickerName = ws.Cells(i, 1).Value
+                ws.Range("I" & summaryTableRow).Value = tickerName
+                ws.Range("L" & summaryTableRow).Value = totalTickerVolume
+                totalTickerVolume = 0
+                yearlyOpen = ws.Range("C" & previousAmount)
+                yearlyClose = ws.Range("F" & i)
+                yearlyChange = yearlyClose - yearlyOpen
+                ws.Range("J" & summaryTableRow).Value = yearlyChange
+
+                If yearlyOpen = 0 Then
+                    percentChange = 0
+                Else
+                    yearlyOpen = ws.Range("C" & previousAmount)
+                    percentChange = yearlyChange / yearlyOpen
+                End If
+                ws.Range("K" & summaryTableRow).NumberFormat = "0.00%"
+                ws.Range("K" & summaryTableRow).Value = percentChange
+            'we set colors here. Interior for cell color.
+                If ws.Range("J" & summaryTableRow).Value >= 0 Then
+                    ws.Range("J" & summaryTableRow).Interior.ColorIndex = 4
+                Else
+                    ws.Range("J" & summaryTableRow).Interior.ColorIndex = 3
+                End If
+            
+                ' now you need to add 1 to the varaible for the correct outcome.
+                summaryTableRow = summaryTableRow + 1
+                previousAmount = i + 1
+                End If
+            Next i
+
+    Next ws
+
+End Sub
